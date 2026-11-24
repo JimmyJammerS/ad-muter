@@ -1,3 +1,5 @@
+console.log("YouTube Ad Muter v2.1 is LIVE!");
+
 let wasMuted = false;
 let savedSpeed = 1;
 let inAd = false;
@@ -7,7 +9,7 @@ function handleAds() {
   const videos = document.querySelectorAll('video');
   if (!player || !videos.length) return;
 
-  const isAd = player.classList.contains('ad-showing');
+  const isAd = player.classList.contains('ad-showing') || player.classList.contains('ad-interrupting');
 
   if (isAd) {
     if (!inAd) {
@@ -20,11 +22,6 @@ function handleAds() {
       v.style.opacity = '0';
       if (v.playbackRate < 16) v.playbackRate = 16;
     });
-
-    const skipBtn = document.querySelector('.ytp-skip-ad-button, .ytp-ad-skip-button-modern, .ytp-ad-skip-button');
-    if (skipBtn && skipBtn.offsetParent !== null) {
-      skipBtn.click();
-    }
   } else if (inAd) {
     inAd = false;
     videos.forEach(v => {
@@ -32,6 +29,15 @@ function handleAds() {
       v.style.opacity = '1';
       v.playbackRate = savedSpeed;
     });
+  }
+
+  // Always check for Skip buttons (including post-video static ad end-cards)
+  const skipBtn = document.querySelector(
+    '.ytp-skip-ad-button, .ytp-ad-skip-button-modern, .ytp-ad-skip-button, button[id^="skip-button"], .ytp-ad-skip-button-slot button, .ytp-ad-overlay-close-button'
+  );
+  if (skipBtn && skipBtn.offsetParent !== null) {
+    skipBtn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+    skipBtn.click();
   }
 }
 
@@ -44,5 +50,4 @@ observer.observe(document.body, {
   attributeFilter: ['class']
 });
 
-// Backup check every 250ms in case YouTube fades the Skip button in quietly
 setInterval(handleAds, 250);
