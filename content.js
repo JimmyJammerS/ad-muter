@@ -1,6 +1,5 @@
 console.log("Barebones Ad Muter + Smart Chime LIVE");
 
-let wasMuted = false;
 let inAd = false;
 let skipChimed = false;
 let endTimer = null;
@@ -26,11 +25,9 @@ function playChime(isSkipReady = false) {
 
     osc.type = 'sine';
     if (isSkipReady) {
-      // Single soft ping when Skip becomes clickable
-      osc.frequency.setValueAtTime(659.25, ctx.currentTime); // E5
+      osc.frequency.setValueAtTime(659.25, ctx.currentTime); // E5 (Skip ready)
     } else {
-      // Two-note chime when the ad is completely over
-      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5 (Ad over)
       osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1); // A5
     }
 
@@ -70,17 +67,12 @@ setInterval(() => {
       clearTimeout(endTimer);
       endTimer = null;
     }
-    if (!inAd) {
-      inAd = true;
-      skipChimed = false;
-      wasMuted = videos[0].muted;
-    }
+    inAd = true;
 
     videos.forEach(v => {
       if (!v.muted) v.muted = true;
     });
 
-    // Ring a single soft note once when the Skip button appears
     if (!skipChimed && isSkipVisible()) {
       skipChimed = true;
       playChime(true);
@@ -91,9 +83,9 @@ setInterval(() => {
       skipChimed = false;
       endTimer = null;
       videos.forEach(v => {
-        v.muted = wasMuted;
+        v.muted = false;
       });
       playChime(false);
-    }, 800);
+    }, 500);
   }
 }, 250);
