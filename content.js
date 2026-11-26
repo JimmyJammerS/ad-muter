@@ -1,4 +1,4 @@
-console.log("YouTube Ad Muter v2.6 is LIVE!");
+console.log("YouTube Ad Muter v2.7 is LIVE!");
 
 let wasMuted = false;
 let inAd = false;
