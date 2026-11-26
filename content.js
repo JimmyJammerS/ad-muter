@@ -1,5 +1,6 @@
 console.log("Barebones Ad Muter + Smart Chime LIVE");
 
+let wasMuted = false;
 let inAd = false;
 let skipChimed = false;
 let endTimer = null;
@@ -18,6 +19,7 @@ function getAudioContext() {
 document.addEventListener('click', getAudioContext, { passive: true });
 
 function playChime(isSkipReady = false) {
+  if (wasMuted) return;
   try {
     const ctx = getAudioContext();
     const osc = ctx.createOscillator();
@@ -67,7 +69,10 @@ setInterval(() => {
       clearTimeout(endTimer);
       endTimer = null;
     }
-    inAd = true;
+    if (!inAd) {
+      inAd = true;
+      wasMuted = videos[0].muted;
+    }
 
     videos.forEach(v => {
       if (!v.muted) v.muted = true;
@@ -83,7 +88,7 @@ setInterval(() => {
       skipChimed = false;
       endTimer = null;
       videos.forEach(v => {
-        v.muted = false;
+      v.muted  = wasMuted;
       });
       playChime(false);
     }, 500);
